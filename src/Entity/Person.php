@@ -7,6 +7,8 @@ use App\Repository\PersonRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity(repositoryClass: PersonRepository::class)]
 #[ApiResource]
@@ -15,19 +17,35 @@ class Person
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private int $id;
 
     #[ORM\Column(type: 'string', length: 50)]
-    private $firstName;
+    #[Assert\NotBlank]
+    private string $firstName;
 
     #[ORM\Column(type: 'string', length: 50)]
-    private $lastName;
+    #[Assert\NotBlank]
+    private string $lastName;
 
-    #[ORM\Column(type: 'date', nullable: true)]
-    private $dateOfBirth;
+    #[ORM\Column(type: 'string', nullable: true)]
+    #[Assert\Date]
+    private ?string $dateOfBirth;
 
     #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Car::class, orphanRemoval: true)]
-    private $ownedCars;
+    private Collection $ownedCars;
+
+//    #[ORM\Column(type: 'datetime')]
+//    /**
+//     * @Gedmo\Timestampable(on="create")
+//     */
+//    private \DateTime $createdAt;
+//
+//
+//    #[ORM\Column(type: 'datetime')]
+//    /**
+//     * @Gedmo\Timestampable(on="update")
+//     */
+//    private \DateTime $updatedAt;
 
     public function __construct()
     {
@@ -63,16 +81,27 @@ class Person
         return $this;
     }
 
-    public function getDateOfBirth(): ?\DateTimeInterface
+    public function getDateOfBirth(): ?string
     {
         return $this->dateOfBirth;
     }
 
-    public function setDateOfBirth(?\DateTimeInterface $dateOfBirth): self
+    public function setDateOfBirth(?string $dateOfBirth): self
     {
         $this->dateOfBirth = $dateOfBirth;
 
         return $this;
+    }
+
+    public function getAge(): ?int
+    {
+        if(is_null($this->dateOfBirth))
+        {
+            return null;
+        }
+
+        return \DateTimeImmutable::createFromFormat('Y-m-d', $this->dateOfBirth)
+            ->diff(new \DateTimeImmutable('now'))->y;
     }
 
     /**

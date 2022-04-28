@@ -4,80 +4,86 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\CarRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: CarRepository::class)]
+#[ORM\Entity()]
+#[ORM\UniqueConstraint(name: 'reg_unique_idx', columns: ['registration_number'])]
 #[ApiResource]
 class Car
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private int $id;
 
     #[ORM\Column(type: 'string', length: 50)]
-    private $make;
+    #[Assert\NotBlank]
+    private string $make;
 
     #[ORM\Column(type: 'string', length: 50)]
-    private $model;
+    #[Assert\NotBlank]
+    private string $model;
 
     #[ORM\Column(type: 'string', length: 10)]
-    private $registrationNumber;
+    #[Assert\NotBlank]
+    private string $registrationNumber;
 
     #[ORM\ManyToOne(targetEntity: Person::class, inversedBy: 'ownedCars')]
     #[ORM\JoinColumn(nullable: false)]
-    private $owner;
+    private Person $owner;
 
-    public function getId(): ?int
+    public function __construct(int $id, string $make, string $model, string $registrationNumber, Person $owner)
+    {
+        $this->id = $id;
+        $this->make = $make;
+        $this->model = $model;
+        $this->registrationNumber = $registrationNumber;
+        $this->owner = $owner;
+    }
+
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getMake(): ?string
+    public function getMake(): string
     {
         return $this->make;
     }
 
-    public function setMake(string $make): self
+    public function setMake(string $make): void
     {
         $this->make = $make;
-
-        return $this;
     }
 
-    public function getModel(): ?string
+    public function getModel(): string
     {
         return $this->model;
     }
 
-    public function setModel(string $model): self
+    public function setModel(string $model): void
     {
         $this->model = $model;
-
-        return $this;
     }
 
-    public function getRegistrationNumber(): ?string
+    public function getRegistrationNumber(): string
     {
         return $this->registrationNumber;
     }
 
-    public function setRegistrationNumber(string $registrationNumber): self
+    public function setRegistrationNumber(string $registrationNumber): void
     {
         $this->registrationNumber = $registrationNumber;
-
-        return $this;
     }
 
-    public function getOwner(): ?Person
+    public function getOwner(): Person
     {
         return $this->owner;
     }
 
-    public function setOwner(?Person $owner): self
+    public function setOwner(Person $owner): void
     {
         $this->owner = $owner;
-
-        return $this;
     }
 }
