@@ -1,0 +1,5 @@
+name: white-rose-maths-tech-test
+recipe: lamp
+config:
+  php: 8.1
+  webroot: public
